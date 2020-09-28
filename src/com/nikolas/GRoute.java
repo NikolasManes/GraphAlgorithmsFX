@@ -36,6 +36,7 @@ public class GRoute {
         }
     }
 
+    // For debugging
     public void printRoute(){
         System.out.println("-ROUTE:\n FROM: " + this.getStartPoint().getId() + "\tTO: "   + this.getEndPoint().getId());
         System.out.println(" TOTAL WEIGHT: " + this.getTotalWeight());

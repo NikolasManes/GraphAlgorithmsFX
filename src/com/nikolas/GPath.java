@@ -24,6 +24,7 @@ public class GPath {
         return mWeight;
     }
 
+    // For debugging
     public void printPath(){
         System.out.println("| START: " + this.getStart().getId() + " | END: " + this.getEnd().getId() + " | WEIGHT: " + this.getWeight() + " |");
     }

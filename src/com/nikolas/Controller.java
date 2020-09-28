@@ -58,8 +58,9 @@ public class Controller implements Initializable {
 
     public void canvasClick(MouseEvent mouseEvent) {
         if (addNodes.isSelected()){
+            // Create new Node
             for (GNode gNode: graph.getNodes()) {
-                if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())) {
+                if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())) {   // Safe distance :P
                     return;
                 }
             }
@@ -67,13 +68,16 @@ public class Controller implements Initializable {
             graph.addNode(node);
             drawGraph();
         } else if (addPaths.isSelected()){
-            System.out.println(" nodeIsSelected: " + nodeIsSelected);
+            // Create new Path
             if(nodeIsSelected){
+                // Start Node is selected
                 for (GNode gNode: graph.getNodes()){
+                    // Get End Node
                     if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())){
                         nodeIsSelected = false;
                         endNode = gNode;
                         try {
+                            // Get the weight
                             String weightText = createInputDialog("1", "Path Weight", "Please enter path's weight: ");
                             if (weightText == "cancel"){
                                 drawGraph();
@@ -92,6 +96,7 @@ public class Controller implements Initializable {
                     }
                 }
             } else {
+                // Select the start Node
                 for (GNode gNode: graph.getNodes()){
                     if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())){
                         graphicsContext.strokeOval(gNode.getCordX()-15, gNode.getCordY()-15, 30, 30);
@@ -102,12 +107,12 @@ public class Controller implements Initializable {
                 }
             }
         }
-        graph.printGraph();
     }
-
+    // Draw the graph
     private void drawGraph() {
         setScene();
         graphicsContext.setStroke(nodeColorDefault);
+        // Draw every node
         for (GNode gNode: graph.getNodes()){
             graphicsContext.strokeOval(gNode.getCordX()-10, gNode.getCordY()-10, 20, 20);
             if (gNode.getId() <10){
@@ -118,6 +123,7 @@ public class Controller implements Initializable {
         }
         graphicsContext.setStroke(pathColorDefault);
         graphicsContext.setFill(pathColorDefault);
+        // Draw every path
         for (GPath gPath: graph.getPaths()){
             drawPath(graphicsContext, gPath.getStart().getCordX(), gPath.getStart().getCordY(), gPath.getEnd().getCordX(), gPath.getEnd().getCordY(), gPath.getWeight());
             graphicsContext.setStroke(pathColorDefault);
@@ -125,9 +131,9 @@ public class Controller implements Initializable {
         graphicsContext.setStroke(strokeColorDefault);
         graphicsContext.setFill(fillColorDefault);
     }
-
+    // Draw the path as an arrow with a circle on it (--0-->)
     private void drawPath(GraphicsContext gc, double x1, double y1, double x2, double y2, int weight) {
-
+        // Do the maths
         double dx = x2 - x1;
         double dy = y2 - y1;
         double midX = x1+(dx/2);
@@ -140,7 +146,7 @@ public class Controller implements Initializable {
         double point1Y = lineEndY+15*Math.sin(Math.PI-arrowAngle+angle);
         double point2X = lineEndX+15*Math.cos(Math.PI+angle+arrowAngle);
         double point2Y = lineEndY+15*Math.sin(Math.PI+angle+arrowAngle);
-
+        // Drawing
         gc.strokeLine(x1+10*Math.cos(angle), y1+10*Math.sin(angle), lineEndX, lineEndY);
         gc.fillPolygon(new double[]{lineEndX, point1X, point2X, lineEndX}, new double[]{lineEndY, point1Y, point2Y, lineEndY}, 4);
         gc.fillOval(midX-8, midY-8, 16, 16);
@@ -151,8 +157,10 @@ public class Controller implements Initializable {
             gc.strokeText(String.valueOf(weight), midX-7, midY+4);
         }
     }
-
+    // Draw the route
     public void drawRoute(GRoute route){
+        setScene();
+        drawGraph();
         try {
             lastNode = route.getEndPoint();
         } catch (NullPointerException nullPointerException) {
@@ -162,14 +170,17 @@ public class Controller implements Initializable {
         graphicsContext.setFill(routeColor);
         graphicsContext.fillRect(canvas.getWidth()-100, 0, canvas.getWidth(),20);
         graphicsContext.setStroke(backgroundColor);
+        // Show the target Node
         graphicsContext.strokeText("Target Node: " + route.getEndPoint().getId(), canvas.getWidth()-90, 15);
         graphicsContext.setStroke(routeColor);
+        // Color the paths
         for (GPath path: route.getPaths()){
             drawPath(graphicsContext, path.getStart().getCordX(), path.getStart().getCordY(), path.getEnd().getCordX(), path.getEnd().getCordY(), path.getWeight());
             graphicsContext.setStroke(routeColor);
         }
         graphicsContext.fillOval(lastNode.getCordX()-15, lastNode.getCordY()-15, 30, 30);
         graphicsContext.setStroke(backgroundColor);
+        // Show total weight
         if (route.getTotalWeight()<10){
             graphicsContext.strokeText(String.valueOf(route.getTotalWeight()), lastNode.getCordX()-3, lastNode.getCordY()+4);
         } else {
@@ -178,18 +189,19 @@ public class Controller implements Initializable {
         graphicsContext.setStroke(strokeColorDefault);
         graphicsContext.setFill(fillColorDefault);
     }
-
+    // Execute the algorithms
     public void runAlgorithm(MouseEvent mouseEvent) {
-        System.out.println(choiceBox.getValue().toString());
-
         switch (choiceBox.getValue().toString()){
             case "BFS":
-                TextInputDialog dialogBFS = new TextInputDialog("0");
-                dialogBFS.setTitle("Destination Node");
-                dialogBFS.setContentText("Please enter the destination node: ");
-                Optional<String> resultBFS = dialogBFS.showAndWait();
+                // Ask destination Node for BFS
                 try {
-                    resultBFS.ifPresent(nodeID -> destinationNodeID = Integer.parseInt(nodeID));
+                    // Get the weight
+                    String destinationText = createInputDialog("0", "Destination Node", "Please enter the destination node: ");
+                    if (destinationText == "cancel"){
+                        drawGraph();
+                        break;
+                    }
+                    destinationNodeID = Integer.parseInt(destinationText);
                     drawRoute(runBFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
                 } catch (NodeNotInGraphException nodeNotInGraphException) {
                     createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
@@ -202,12 +214,15 @@ public class Controller implements Initializable {
                 }
                 break;
             case "DFS":
-                TextInputDialog dialogDFS = new TextInputDialog("0");
-                dialogDFS.setTitle("Destination Node");
-                dialogDFS.setContentText("Please enter the destination node: ");
-                Optional<String> resultDFS = dialogDFS.showAndWait();
+                // Ask destination Node for DFS
                 try {
-                    resultDFS.ifPresent(nodeID -> destinationNodeID = Integer.parseInt(nodeID));
+                    // Get the weight
+                    String destinationText = createInputDialog("0", "Destination Node", "Please enter the destination node: ");
+                    if (destinationText == "cancel"){
+                        drawGraph();
+                        break;
+                    }
+                    destinationNodeID = Integer.parseInt(destinationText);
                     drawRoute(runDFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
                 } catch (NodeNotInGraphException nodeNotInGraphException) {
                     createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
@@ -220,7 +235,6 @@ public class Controller implements Initializable {
                 }
                 break;
             case "Prim":
-                System.out.println("Prim "+ choiceBox.getValue().toString());
                 break;
             case "Dijkstra":
                 listItem = 0;
@@ -284,7 +298,11 @@ public class Controller implements Initializable {
 
     }
 
+    /***
+     *      Breadth First Search Algorithm
+     * */
     public GRoute runBFS(Graph graph, int startID, int endID){
+        // Create necessary lists
         List<GNode> frontier = new ArrayList<>();
         List<GNode> exploredNodes = new ArrayList<>();
         List<GRoute> routes = new ArrayList<>();
@@ -293,57 +311,68 @@ public class Controller implements Initializable {
             GRoute startRoute = new GRoute(graph.getSingleNode(startID), graph.getSingleNode(startID), new ArrayList<>());
             routes.add(startRoute);
         } catch (NodeNotInGraphException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
+        // Add the first Node in the frontier
         try {
             frontier.add(graph.getSingleNode(startID));
         } catch (NodeNotInGraphException e) {
             System.out.println(e.getMessage());
         }
+        // If the frontier is empty there is no route
         while (!frontier.isEmpty()) {
             List<GNode> dummyFrontierList = new ArrayList<>(frontier);
+            // Check every Node in the frontier if is the destination
             for (GNode node : dummyFrontierList) {
                 GNode toCheck = node;
                 frontier.remove(node);
                 if (toCheck.getId() == endID) {
-                    System.out.println("Route found!");
+                    // When the destination reached return the Route
                     for (GRoute route : routes) {
                         if (route.getEndPoint().getId() == endID) {
-                            route.printRoute();
                             return route;
                         }
                     }
                 }
-                System.out.println(node.getId());
+                // Add Node to explored list
                 exploredNodes.add(toCheck);
+                // Search the paths of the graph
                 for (GPath path : graph.getPaths()) {
+                    // Check the paths that start from the Node we exploring
                     if (path.getStart().getId() == toCheck.getId()) {
+                        // Check the end Node, if not explored yet, added to frontier
                         if (frontier.contains(path.getEnd()) || exploredNodes.contains(path.getEnd())) {
                             continue;
                         }
                         frontier.add(path.getEnd());
+                        // To every route that end to the Node we exploring append the path
                         for (GRoute r : routes) {
                             if (r.getEndPoint().getId() == toCheck.getId()) {
-                                GRoute routetemp = new GRoute(r.getStartPoint(), r.getEndPoint(), new ArrayList<>(r.getPaths()));
+                                GRoute routeTemp = new GRoute(r.getStartPoint(), r.getEndPoint(), new ArrayList<>(r.getPaths()));
                                 try {
-                                    routetemp.addPathToRoute(path);
-                                    routetemp.printRoute();
+                                    routeTemp.addPathToRoute(path);
                                 } catch (PathCannotConnectToRouteException e) {
                                     e.printStackTrace();
                                 }
-                                routesToAdd.add(routetemp);
+                                routesToAdd.add(routeTemp);
                             }
                         }
+                        // Add the routes created to the list
                         routes.addAll(routesToAdd);
                         routesToAdd.clear();
                     }
                 }
             }
         }
+        // When there is no route
         return null;
     }
 
+    /***
+     *      Depth First Search Algorithm
+     * */
     public GRoute runDFS(Graph graph, int startID, int endID){
+        // Create the stack and the lists we need
         Deque<GNode> nodesToCheck = new ArrayDeque<>();
         List<Integer> exploredNodes = new ArrayList<>();
         List<GRoute> routesCreated = new ArrayList<>();
@@ -351,35 +380,36 @@ public class Controller implements Initializable {
         try {
             GRoute dummyRoute = new GRoute(graph.getSingleNode(startID), graph.getSingleNode(startID), new ArrayList<>());
             routesCreated.add(dummyRoute);
+            // Add the first Node
             nodesToCheck.push(graph.getSingleNode(startID));
             while (!nodesToCheck.isEmpty()){
+                // Get the first Node from stack
                 GNode currentNode = nodesToCheck.pop();
-                System.out.print("\nCurrent: ");
-                System.out.print(currentNode.getId());
+                // Check if the Node is explored
                 if (exploredNodes.contains(currentNode.getId())){
-                    System.out.print(" Explored!");
                     continue;
                 }
                 exploredNodes.add(currentNode.getId());
+                // Check all the paths of the graph that start from that Node
                 for (GPath path: graph.getPaths()){
                     if (path.getStart().getId() == currentNode.getId()){
+                        // Append the path to the routes that are created and have the same end
                         for (GRoute route: routesCreated){
                             if (route.getEndPoint().getId() == currentNode.getId()){
                                 GRoute routeCreated = new GRoute(route.getStartPoint(), route.getEndPoint(), new ArrayList<>(route.getPaths()));
                                 routeCreated.addPathToRoute(path);
+                                // Check if reached the destination
                                 if (routeCreated.getEndPoint().getId() == endID){
                                     return routeCreated;
                                 }
                                 routesToAdd.add(routeCreated);
                             }
                         }
+                        // Add the routes to the list
                         routesCreated.addAll(routesToAdd);
                         routesToAdd.clear();
+                        // Add the next Node to the stack
                         nodesToCheck.push(path.getEnd());
-                        System.out.print("\nStack: ");
-                        for (GNode n: nodesToCheck){
-                            System.out.print(" " + n.getId());
-                        }
                     }
                 }
             }
@@ -388,13 +418,19 @@ public class Controller implements Initializable {
         } catch (PathCannotConnectToRouteException e) {
             e.printStackTrace();
         }
+        // When there is no route
         return null;
     }
-
+    /***
+     *      Prim Algorithm (ToDo)
+     * */
     public void runPrim(Graph graph){
         System.out.println("Not implemented yet!");
     }
 
+    /***
+     *      Dijkstra Shortest Paths Algorithm
+     * */
     public List<GRoute> runDijkstra(Graph graph) {
         // Declare a list to store the routes
         List<GRoute> routes = new ArrayList<>();
@@ -413,7 +449,6 @@ public class Controller implements Initializable {
         while(bestRoutes.size()<graph.getNodeNumber()){
             step++;
             int pathCount = 0;
-            System.out.println("\n ---- STEP: " + step + " ----\n");
             /* Get the shortest route of all to stabilize it */
             // Declare a route to store the temporary value
             GRoute shortestRoute;
@@ -422,19 +457,13 @@ public class Controller implements Initializable {
             // Remove the shortest route and add it to bestRoutes
             shortestRoute = routes.remove(0);
             bestRoutes.add(shortestRoute);
-            System.out.println("The shortest route: ");
-            shortestRoute.printRoute();
             // Find all paths starting from the end of that route
             for (GPath path: graph.getPaths()){
                 if (shortestRoute.getEndPoint().getId() == path.getStart().getId()){
                     pathCount++;
-                    System.out.println("*** The " + pathCount + " path starting from the end of that route:");
-                    path.printPath();
                     // For every path we find check if there is a shorter route to the Node
                     for (GRoute route: routes){
                         if(route.getEndPoint().getId() == path.getEnd().getId()){
-                            System.out.println("* Route with the same end as the path: ");
-                            route.printRoute();
                             // Check if there is a shortest way to go to that node(end)
                             if(route.getTotalWeight() > shortestRoute.getTotalWeight() + path.getWeight()){
                                 // Create a dummy route to store the route
@@ -445,17 +474,11 @@ public class Controller implements Initializable {
                                     System.out.println(e.getMessage());
                                 }
                                 routes.set(routes.indexOf(route), dummyRoute);
-                                System.out.println("<<<New Route>>>");
-                                route.printRoute();
                             }
                         }
                     }
                 }
             }
-        }
-        System.out.println("\n\n!!!!! THE SHORTEST ROUTES !!!!!\n");
-        for(GRoute r : bestRoutes){
-            r.printRoute();
         }
         return bestRoutes;
     }

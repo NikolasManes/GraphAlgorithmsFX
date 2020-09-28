@@ -67,7 +67,7 @@ public class Graph {
         }
         throw new NodeNotInGraphException("There is not a node with id " + id + " in the graph!");
     }
-
+    // For debugging
     public void printGraph(){
         System.out.println("No of Nodes: " + mGNodes.size());
         for (GPath GPath : mGPaths){

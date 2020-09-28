@@ -4,13 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class Controller implements Initializable {
@@ -24,7 +24,6 @@ public class Controller implements Initializable {
     private int listItem = 0;
     private GNode lastNode;
     private List<GRoute> dijkstraRoutes;
-    private DecimalFormat towDigitsFormat = new DecimalFormat("00");
     private Color backgroundColor = Color.LIGHTGRAY;
     private Color strokeColorDefault = Color.RED;
     private Color fillColorDefault = Color.BLACK;
@@ -59,6 +58,11 @@ public class Controller implements Initializable {
 
     public void canvasClick(MouseEvent mouseEvent) {
         if (addNodes.isSelected()){
+            for (GNode gNode: graph.getNodes()) {
+                if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())) {
+                    return;
+                }
+            }
             GNode node = new GNode(mouseEvent.getX(), mouseEvent.getY());
             graph.addNode(node);
             drawGraph();
@@ -66,23 +70,30 @@ public class Controller implements Initializable {
             System.out.println(" nodeIsSelected: " + nodeIsSelected);
             if(nodeIsSelected){
                 for (GNode gNode: graph.getNodes()){
-                    if (gNode.nodeSelected(mouseEvent.getX(), mouseEvent.getY())){
+                    if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())){
                         nodeIsSelected = false;
                         endNode = gNode;
-                        TextInputDialog dialog = new TextInputDialog("0");
-                        dialog.setTitle("Path Weight");
-                        dialog.setContentText("Please enter path's weight: ");
-                        Optional<String> result = dialog.showAndWait();
-                        result.ifPresent(weight -> pathWeight = Integer.parseInt(weight));
-                        GPath path = new GPath(startNode, endNode, pathWeight);
-                        graph.addPathToGraph(path);
-                        drawGraph();
-                        break;
+                        try {
+                            String weightText = createInputDialog("1", "Path Weight", "Please enter path's weight: ");
+                            if (weightText == "cancel"){
+                                drawGraph();
+                                break;
+                            }
+                            pathWeight = Integer.parseInt(weightText);
+                            GPath path = new GPath(startNode, endNode, pathWeight);
+                            graph.addPathToGraph(path);
+                            drawGraph();
+                            break;
+                        } catch (NumberFormatException numberFormatException){
+                            createAlertDialog("Invalid input!", "Please enter an integer!");
+                            drawGraph();
+                            break;
+                        }
                     }
                 }
             } else {
                 for (GNode gNode: graph.getNodes()){
-                    if (gNode.nodeSelected(mouseEvent.getX(), mouseEvent.getY())){
+                    if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())){
                         graphicsContext.strokeOval(gNode.getCordX()-15, gNode.getCordY()-15, 30, 30);
                         nodeIsSelected = true;
                         startNode = gNode;
@@ -99,7 +110,11 @@ public class Controller implements Initializable {
         graphicsContext.setStroke(nodeColorDefault);
         for (GNode gNode: graph.getNodes()){
             graphicsContext.strokeOval(gNode.getCordX()-10, gNode.getCordY()-10, 20, 20);
-            graphicsContext.strokeText(towDigitsFormat.format(gNode.getId()), gNode.getCordX()-6.5, gNode.getCordY()+4);
+            if (gNode.getId() <10){
+                graphicsContext.strokeText(String.valueOf(gNode.getId()), gNode.getCordX()-3, gNode.getCordY()+4);
+            } else {
+                graphicsContext.strokeText(String.valueOf(gNode.getId()), gNode.getCordX()-6.5, gNode.getCordY()+4);
+            }
         }
         graphicsContext.setStroke(pathColorDefault);
         graphicsContext.setFill(pathColorDefault);
@@ -138,7 +153,12 @@ public class Controller implements Initializable {
     }
 
     public void drawRoute(GRoute route){
-        lastNode = route.getEndPoint();
+        try {
+            lastNode = route.getEndPoint();
+        } catch (NullPointerException nullPointerException) {
+            createInfoDialog("There is no route!");
+            return;
+        }
         graphicsContext.setFill(routeColor);
         graphicsContext.fillRect(canvas.getWidth()-100, 0, canvas.getWidth(),20);
         graphicsContext.setStroke(backgroundColor);
@@ -168,16 +188,36 @@ public class Controller implements Initializable {
                 dialogBFS.setTitle("Destination Node");
                 dialogBFS.setContentText("Please enter the destination node: ");
                 Optional<String> resultBFS = dialogBFS.showAndWait();
-                resultBFS.ifPresent(nodeID -> destinationNodeID = Integer.parseInt(nodeID));
-                drawRoute(runBFS(graph, 0, destinationNodeID));
+                try {
+                    resultBFS.ifPresent(nodeID -> destinationNodeID = Integer.parseInt(nodeID));
+                    drawRoute(runBFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
+                } catch (NodeNotInGraphException nodeNotInGraphException) {
+                    createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
+                    drawGraph();
+                    break;
+                } catch (NumberFormatException numberFormatException) {
+                    createAlertDialog("Invalid input!", "Please enter an integer!");
+                    drawGraph();
+                    break;
+                }
                 break;
             case "DFS":
                 TextInputDialog dialogDFS = new TextInputDialog("0");
                 dialogDFS.setTitle("Destination Node");
                 dialogDFS.setContentText("Please enter the destination node: ");
                 Optional<String> resultDFS = dialogDFS.showAndWait();
-                resultDFS.ifPresent(nodeID -> destinationNodeID = Integer.parseInt(nodeID));
-                drawRoute(runDFS(graph, 0, destinationNodeID));
+                try {
+                    resultDFS.ifPresent(nodeID -> destinationNodeID = Integer.parseInt(nodeID));
+                    drawRoute(runDFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
+                } catch (NodeNotInGraphException nodeNotInGraphException) {
+                    createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
+                    drawGraph();
+                    break;
+                } catch (NumberFormatException numberFormatException) {
+                    createAlertDialog("Invalid input!", "Please enter an integer!");
+                    drawGraph();
+                    break;
+                }
                 break;
             case "Prim":
                 System.out.println("Prim "+ choiceBox.getValue().toString());
@@ -189,6 +229,35 @@ public class Controller implements Initializable {
                 break;
 
         }
+    }
+
+    private String createInputDialog(String prompt, String tittle, String content) {
+        TextInputDialog dialog = new TextInputDialog(prompt);
+        dialog.setTitle(tittle);
+        dialog.setContentText(content);
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()){
+            return result.get();
+        } else {
+            return "cancel";
+        }
+    }
+
+
+    private void createInfoDialog(String info) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(info);
+        alert.showAndWait();
+    }
+
+    private void createAlertDialog(String cause, String solution) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText(cause);
+        alert.setContentText(solution);
+        alert.showAndWait();
     }
 
     public void clearGraph(MouseEvent mouseEvent) {

@@ -25,7 +25,7 @@ public class GNode {
         return mCordY;
     }
 
-    public boolean nodeSelected(double clickX, double clickY){
+    public boolean nodeSelect(double clickX, double clickY){
         return Math.pow((this.mCordY-clickY), 2) + Math.pow((this.mCordX-clickX), 2) < 900;
     }
 }

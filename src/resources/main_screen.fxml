@@ -37,7 +37,7 @@
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="BFS" />
                                 <String fx:value="DFS" />
-<!-- todo                                <String fx:value="Prim" />-->
+                                <String fx:value="Prim" />
                                 <String fx:value="Dijkstra" />
                             </FXCollections>
                         </items>

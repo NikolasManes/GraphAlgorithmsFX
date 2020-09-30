@@ -12,6 +12,13 @@ public class GNode {
         this.mCordX = cordX;
         this.mCordY = cordY;
     }
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GNode node = (GNode) o;
+        return mID == node.getId();
+    }
     // Getter for the ID
     public int getId() {
         return mID;

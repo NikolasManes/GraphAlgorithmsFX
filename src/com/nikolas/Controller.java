@@ -2,6 +2,7 @@ package com.nikolas;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -130,7 +131,95 @@ public class Controller implements Initializable {
             }
         }
     }
+    public void clear(MouseEvent mouseEvent) {
+        switch (clearChoiceBox.getValue().toString()){
+            case "GRAPH":
+                graph = new Graph();
+                dijkstraRoutes = new ArrayList<>();
+                nodeIsSelected = false;
+                setScene();
+                drawGraph();
+                break;
+            case "ROUTES":
+                setScene();
+                drawGraph();
+                break;
+        }
+    }
 
+    public void nextRoute(MouseEvent mouseEvent) {
+        setScene();
+        drawGraph();
+        if(listItem < dijkstraRoutes.size()-1){
+            listItem++;
+        }
+        drawRoute(dijkstraRoutes.get(listItem));
+    }
+
+    public void previousRoute(MouseEvent mouseEvent) {
+        setScene();
+        drawGraph();
+        if(listItem > 0){
+            listItem--;
+        }
+        drawRoute(dijkstraRoutes.get(listItem));
+
+    }
+    // Execute the algorithms
+    public void runAlgorithm(MouseEvent mouseEvent) {
+        switch (chooseAlgorithmBox.getValue().toString()){
+            case "BFS":
+                // Ask destination Node for BFS
+                try {
+                    // Get the weight
+                    String destinationText = createInputDialog("0", "Destination Node", "Please enter the destination node: ");
+                    if (destinationText == "cancel"){
+                        drawGraph();
+                        break;
+                    }
+                    destinationNodeID = Integer.parseInt(destinationText);
+                    drawRoute(runBFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
+                } catch (NodeNotInGraphException nodeNotInGraphException) {
+                    createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
+                    drawGraph();
+                    break;
+                } catch (NumberFormatException numberFormatException) {
+                    createAlertDialog("Invalid input!", "Please enter an integer!");
+                    drawGraph();
+                    break;
+                }
+                break;
+            case "DFS":
+                // Ask destination Node for DFS
+                try {
+                    // Get the weight
+                    String destinationText = createInputDialog("0", "Destination Node", "Please enter the destination node: ");
+                    if (destinationText == "cancel"){
+                        drawGraph();
+                        break;
+                    }
+                    destinationNodeID = Integer.parseInt(destinationText);
+                    drawRoute(runDFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
+                } catch (NodeNotInGraphException nodeNotInGraphException) {
+                    createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
+                    drawGraph();
+                    break;
+                } catch (NumberFormatException numberFormatException) {
+                    createAlertDialog("Invalid input!", "Please enter an integer!");
+                    drawGraph();
+                    break;
+                }
+                break;
+            case "Prim":
+                runPrim(graph);
+                break;
+            case "Dijkstra":
+                listItem = 0;
+                dijkstraRoutes = runDijkstra(graph);
+                drawRoute(dijkstraRoutes.get(listItem));
+                break;
+        }
+    }
     // Draw the graph
     private void drawGraph() {
         setScene();
@@ -212,60 +301,19 @@ public class Controller implements Initializable {
         graphicsContext.setStroke(strokeColorDefault);
         graphicsContext.setFill(fillColorDefault);
     }
-    // Execute the algorithms
-    public void runAlgorithm(MouseEvent mouseEvent) {
-        switch (chooseAlgorithmBox.getValue().toString()){
-            case "BFS":
-                // Ask destination Node for BFS
-                try {
-                    // Get the weight
-                    String destinationText = createInputDialog("0", "Destination Node", "Please enter the destination node: ");
-                    if (destinationText == "cancel"){
-                        drawGraph();
-                        break;
-                    }
-                    destinationNodeID = Integer.parseInt(destinationText);
-                    drawRoute(runBFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
-                } catch (NodeNotInGraphException nodeNotInGraphException) {
-                    createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
-                    drawGraph();
-                    break;
-                } catch (NumberFormatException numberFormatException) {
-                    createAlertDialog("Invalid input!", "Please enter an integer!");
-                    drawGraph();
-                    break;
-                }
-                break;
-            case "DFS":
-                // Ask destination Node for DFS
-                try {
-                    // Get the weight
-                    String destinationText = createInputDialog("0", "Destination Node", "Please enter the destination node: ");
-                    if (destinationText == "cancel"){
-                        drawGraph();
-                        break;
-                    }
-                    destinationNodeID = Integer.parseInt(destinationText);
-                    drawRoute(runDFS(graph, 0, graph.getSingleNode(destinationNodeID).getId()));
-                } catch (NodeNotInGraphException nodeNotInGraphException) {
-                    createAlertDialog("Node not in Graph!", "Please enter an integer from 0 to " + (graph.getNodeNumber() - 1)+ "!");
-                    drawGraph();
-                    break;
-                } catch (NumberFormatException numberFormatException) {
-                    createAlertDialog("Invalid input!", "Please enter an integer!");
-                    drawGraph();
-                    break;
-                }
-                break;
-            case "Prim":
-                break;
-            case "Dijkstra":
-                listItem = 0;
-                dijkstraRoutes = runDijkstra(graph);
-                drawRoute(dijkstraRoutes.get(listItem));
-                break;
 
+    public void drawMinTree(List<GPath> paths){
+        setScene();
+        drawGraph();
+        graphicsContext.setFill(routeColor);
+        graphicsContext.setStroke(routeColor);
+        // Color the paths
+        for (GPath path: paths){
+            drawPath(graphicsContext, path.getStart().getCordX(), path.getStart().getCordY(), path.getEnd().getCordX(), path.getEnd().getCordY(), path.getWeight());
+            graphicsContext.setStroke(routeColor);
         }
+        graphicsContext.setStroke(strokeColorDefault);
+        graphicsContext.setFill(fillColorDefault);
     }
 
     private String createInputDialog(String prompt, String tittle, String content) {
@@ -279,7 +327,6 @@ public class Controller implements Initializable {
             return "cancel";
         }
     }
-
 
     private void createInfoDialog(String info) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -296,42 +343,6 @@ public class Controller implements Initializable {
         alert.setContentText(solution);
         alert.showAndWait();
     }
-
-    public void clear(MouseEvent mouseEvent) {
-        switch (clearChoiceBox.getValue().toString()){
-            case "GRAPH":
-                graph = new Graph();
-                dijkstraRoutes = new ArrayList<>();
-                nodeIsSelected = false;
-                setScene();
-                drawGraph();
-                break;
-            case "ROUTES":
-                setScene();
-                drawGraph();
-                break;
-        }
-    }
-
-    public void nextRoute(MouseEvent mouseEvent) {
-        setScene();
-        drawGraph();
-        if(listItem < dijkstraRoutes.size()-1){
-            listItem++;
-        }
-        drawRoute(dijkstraRoutes.get(listItem));
-    }
-
-    public void previousRoute(MouseEvent mouseEvent) {
-        setScene();
-        drawGraph();
-        if(listItem > 0){
-            listItem--;
-        }
-        drawRoute(dijkstraRoutes.get(listItem));
-
-    }
-
     /***
      *      Breadth First Search Algorithm
      * */
@@ -401,7 +412,6 @@ public class Controller implements Initializable {
         // When there is no route
         return null;
     }
-
     /***
      *      Depth First Search Algorithm
      * */
@@ -456,12 +466,51 @@ public class Controller implements Initializable {
         return null;
     }
     /***
-     *      Prim Algorithm (ToDo)
+     *      Prim Algorithm
      * */
     public void runPrim(Graph graph){
-        System.out.println("Not implemented yet!");
-    }
+        List<GNode> nodes = new ArrayList<>(graph.getNodes());
+        List<GPath> paths = new ArrayList<>(graph.getPaths());
+        // Tree variables
+        List<GNode> treeNodes = new ArrayList<>();
+        List<GPath> treePaths = new ArrayList<>();
+        List<GPath> pathsToCheck = new ArrayList<>();
 
+        treeNodes.add(nodes.remove(0));
+
+        while (!nodes.isEmpty()) {
+            // Get the available paths for each node
+            for (GNode node: treeNodes){
+                for (GPath path: paths){
+                    if (path.hasNode(node.getId())){
+                        if (treeNodes.contains(path.getEnd()) && treeNodes.contains(path.getStart())){
+                            continue;
+                        }
+                        pathsToCheck.add(path);
+                    }
+                }
+            }
+            // Add the path with the minimum weight to the tree
+            pathsToCheck.sort(Comparator.comparing(GPath::getWeight));
+            treePaths.add(pathsToCheck.remove(0));
+            // Remove it from the list
+            paths.removeIf(path -> path.equals(treePaths.get(treePaths.size() - 1)));
+            // Add node to treeNodes and remove it from nodes
+            for (GNode node: treeNodes){
+                if (treePaths.get(treePaths.size()-1).getStart().equals(node)){
+                    treeNodes.add(treePaths.get(treePaths.size()-1).getEnd());
+                    break;
+                }
+                if (treePaths.get(treePaths.size()-1).getEnd().equals(node)){
+                    treeNodes.add(treePaths.get(treePaths.size()-1).getStart());
+                    break;
+                }
+            }
+            nodes.removeIf(node -> node.equals(treeNodes.get(treeNodes.size()-1)));
+            pathsToCheck.clear();
+        }
+        drawMinTree(treePaths);
+    }
     /***
      *      Dijkstra Shortest Paths Algorithm
      * */

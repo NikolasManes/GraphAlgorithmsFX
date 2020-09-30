@@ -11,6 +11,13 @@ public class GPath {
         this.mEnd = end;
         this.mWeight = weight;
     }
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GPath path = (GPath) o;
+        return mStart.getId() == path.getStart().getId() && mEnd.getId() == path.getEnd().getId() && mWeight == path.getWeight();
+    }
 
     public GNode getStart() {
         return mStart;
@@ -22,6 +29,10 @@ public class GPath {
 
     public int getWeight() {
         return mWeight;
+    }
+
+    public boolean hasNode(int nodeID) {
+        return nodeID == mStart.getId() || nodeID == mEnd.getId();
     }
 
     // For debugging

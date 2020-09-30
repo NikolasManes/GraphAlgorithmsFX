@@ -1,4 +1,4 @@
-module GraphAlgorithmsFX {
+module com.nikolas {
     requires javafx.controls;
     requires javafx.fxml;
 

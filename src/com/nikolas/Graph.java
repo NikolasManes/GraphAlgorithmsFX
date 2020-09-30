@@ -7,9 +7,12 @@ public class Graph {
     private ArrayList<GNode> mGNodes = new ArrayList<>();
     private ArrayList<GPath> mGPaths = new ArrayList<>();
 
-    public Graph(){}
+    public Graph(){
+        GNode.autoIndex = 0;
+    }
 
     public Graph(ArrayList<GNode> GNodes, ArrayList<GPath> GPaths){
+        GNode.autoIndex = 0;
         this.mGNodes = GNodes;
         this.mGPaths = GPaths;
     }
@@ -57,6 +60,22 @@ public class Graph {
             }
         }
         return false;
+    }
+
+    public void deletePath(GPath path){
+        mGPaths.remove(path);
+    }
+
+    public void deleteNode(GNode node){
+        // Delete the paths connected to that Node first
+        ArrayList<GPath> pathsDummy = new ArrayList<>(mGPaths);
+        for (GPath path: pathsDummy){
+            if (path.getStart().getId() == node.getId() || path.getEnd().getId() == node.getId()){
+                mGPaths.remove(path);
+            }
+        }
+        // Delete the Node
+        mGNodes.remove(node);
     }
 
     public GNode getSingleNode(int id) throws NodeNotInGraphException {

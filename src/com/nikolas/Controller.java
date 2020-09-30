@@ -4,10 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import java.net.URL;
@@ -38,7 +35,11 @@ public class Controller implements Initializable {
     @FXML
     private RadioButton addPaths;
     @FXML
-    private ChoiceBox choiceBox;
+    private CheckBox delete;
+    @FXML
+    private ChoiceBox chooseAlgorithmBox;
+    @FXML
+    private ChoiceBox clearChoiceBox;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -54,10 +55,21 @@ public class Controller implements Initializable {
         graphicsContext.setFill(backgroundColor);
         graphicsContext.fillRect(0,0, canvas.getWidth(), canvas.getHeight());
         graphicsContext.setFill(fillColorDefault);
-        graphicsContext.setStroke(strokeColorDefault);    }
+        graphicsContext.setStroke(strokeColorDefault);
+    }
 
     public void canvasClick(MouseEvent mouseEvent) {
         if (addNodes.isSelected()){
+            if (delete.isSelected()){
+                List<GNode> nodesDummy = new ArrayList<>(graph.getNodes());
+                for (GNode gNode: nodesDummy) {
+                    if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())) {
+                        graph.deleteNode(gNode);
+                        drawGraph();
+                        return;
+                    }
+                }
+            }
             // Create new Node
             for (GNode gNode: graph.getNodes()) {
                 if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())) {   // Safe distance :P
@@ -76,6 +88,16 @@ public class Controller implements Initializable {
                     if (gNode.nodeSelect(mouseEvent.getX(), mouseEvent.getY())){
                         nodeIsSelected = false;
                         endNode = gNode;
+                        if (delete.isSelected()){
+                            List<GPath> dummyPaths =new ArrayList<>(graph.getPaths());
+                            for (GPath gPath: dummyPaths){
+                                if (gPath.getStart().getId() == startNode.getId() && gPath.getEnd().getId() == endNode.getId()){
+                                    graph.deletePath(gPath);
+                                }
+                            }
+                            drawGraph();
+                            break;
+                        }
                         try {
                             // Get the weight
                             String weightText = createInputDialog("1", "Path Weight", "Please enter path's weight: ");
@@ -108,6 +130,7 @@ public class Controller implements Initializable {
             }
         }
     }
+
     // Draw the graph
     private void drawGraph() {
         setScene();
@@ -191,7 +214,7 @@ public class Controller implements Initializable {
     }
     // Execute the algorithms
     public void runAlgorithm(MouseEvent mouseEvent) {
-        switch (choiceBox.getValue().toString()){
+        switch (chooseAlgorithmBox.getValue().toString()){
             case "BFS":
                 // Ask destination Node for BFS
                 try {
@@ -274,9 +297,20 @@ public class Controller implements Initializable {
         alert.showAndWait();
     }
 
-    public void clearGraph(MouseEvent mouseEvent) {
-        setScene();
-        drawGraph();
+    public void clear(MouseEvent mouseEvent) {
+        switch (clearChoiceBox.getValue().toString()){
+            case "GRAPH":
+                graph = new Graph();
+                dijkstraRoutes = new ArrayList<>();
+                nodeIsSelected = false;
+                setScene();
+                drawGraph();
+                break;
+            case "ROUTES":
+                setScene();
+                drawGraph();
+                break;
+        }
     }
 
     public void nextRoute(MouseEvent mouseEvent) {

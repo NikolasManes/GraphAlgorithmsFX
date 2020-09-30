@@ -21,6 +21,8 @@
                 <children>
                     <RadioButton fx:id="addNodes" mnemonicParsing="false" text="Nodes" toggleGroup="$toggleGroup" selected="true"/>
                     <RadioButton fx:id="addPaths" mnemonicParsing="false" text="Paths" toggleGroup="$toggleGroup" selected="false"/>
+                    <Region prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                    <CheckBox fx:id="delete" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="Delete" textAlignment="CENTER" />
                 </children>
             </HBox>
             <Canvas fx:id="canvas" height="480" width="780" onMouseClicked="#canvasClick">
@@ -30,12 +32,12 @@
                     -fx-padding: 10;
                 </style>
                 <children>
-                    <ChoiceBox fx:id="choiceBox" prefWidth="75.0" >
+                    <ChoiceBox fx:id="chooseAlgorithmBox" prefWidth="75.0" >
                         <items>
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="BFS" />
                                 <String fx:value="DFS" />
-                                <String fx:value="Prim" />
+<!-- todo                                <String fx:value="Prim" />-->
                                 <String fx:value="Dijkstra" />
                             </FXCollections>
                         </items>
@@ -44,7 +46,15 @@
                     <Region prefWidth="200.0" HBox.hgrow="ALWAYS" />
                     <Button fx:id="previousRoute" onMouseClicked="#previousRoute" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="PREV" textAlignment="CENTER" />
                     <Button fx:id="nextRoute" onMouseClicked="#nextRoute" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="NEXT" textAlignment="CENTER" />
-                    <Button fx:id="clearGraph" onMouseClicked="#clearGraph" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="CLEAR" textAlignment="CENTER" />
+                    <Button fx:id="clearGraph" onMouseClicked="#clear" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="CLEAR" textAlignment="CENTER" />
+                    <ChoiceBox fx:id="clearChoiceBox" prefWidth="75.0" >
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="ROUTES" />
+                                <String fx:value="GRAPH" />
+                            </FXCollections>
+                        </items>
+                    </ChoiceBox>
                 </children>
             </HBox>
         </children>

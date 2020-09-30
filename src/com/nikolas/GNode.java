@@ -1,7 +1,7 @@
 package com.nikolas;
 
 public class GNode {
-    private static int autoIndex = 0;
+    public static int autoIndex = 0;
     // Has only one attribute an ID
     private int mID;
     private double mCordX;

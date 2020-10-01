@@ -2,7 +2,6 @@ package com.nikolas;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -563,6 +562,8 @@ public class Controller implements Initializable {
                 }
             }
         }
+        // When a route has infinite weight means the node is unreachable
+        bestRoutes.removeIf(route -> route.getTotalWeight() == Integer.MAX_VALUE);
         return bestRoutes;
     }
 }

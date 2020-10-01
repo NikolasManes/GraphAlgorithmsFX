@@ -3,8 +3,9 @@ New version of GraphDrawFX.
 Create a graph on screen and run several algorithms on it. 
 
 * project files:
-https://www.dropbox.com/sh/h6kf2o54trh33df/AAAj69SIdSTw6jhLzZVQExMYa?dl=0&fbclid=IwAR00sqeqjw-S6DmLTER7gYNLGHzTcOgfd_YpWnIa24AgOTZQjEJfrba03Us
-
-** to run the application: unzip GraphAlgorithms.zip and double-click launcher inside the bin folder
+https://www.dropbox.com/s/15pe1aowxih985d/GraphAlgorithmsFX.jar?dl=0
                             
-*** the .jar file needs JDK14
+** needs JDK14
+
+*** same project independent from JDK:
+https://github.com/NikolasManes/GraphAlgorithmsFXMaven

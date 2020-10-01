@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GraphAlgorithmsFX:jar">
+    <output-path>$PROJECT_DIR$/mods/artifacts/GraphAlgorithmsFX_jar</output-path>
+    <root id="archive" name="GraphAlgorithmsFX.jar">
+      <element id="module-output" name="GraphAlgorithmsFX" />
+      <element id="extracted-dir" path="C:/Program Files/Java/jdk-14.0.1/lib/src.zip" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Program Files/Java/jdk-14.0.1/lib/jrt-fs.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/src.zip" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx-swt.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.web.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.base.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.fxml.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.media.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.swing.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.controls.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PATH_TO_FX$/javafx.graphics.jar" path-in-jar="/" />
+      <element id="dir-copy" path="C:/Program Files/JavaFX/javafx-sdk-15/bin" />
+    </root>
+  </artifact>
+</component>

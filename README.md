@@ -11,6 +11,7 @@ https://www.dropbox.com/s/15pe1aowxih985d/GraphAlgorithmsFX.jar?dl=0
 https://github.com/NikolasManes/GraphAlgorithmsFXMaven
 
 How to use the application:
+
 First of all you have to create a graph.
 - To create a new node: 
 	(delete must be unchecked!)

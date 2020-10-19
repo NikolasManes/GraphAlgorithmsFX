@@ -10,6 +10,10 @@ https://www.dropbox.com/s/15pe1aowxih985d/GraphAlgorithmsFX.jar?dl=0
 *** same project independent from JDK:
 https://github.com/NikolasManes/GraphAlgorithmsFXMaven
 
+About this application:
+
+For educational use, shows how several graph algorithms run.
+
 How to use the application:
 
 First of all you have to create a graph.
